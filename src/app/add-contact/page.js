@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { FiArrowLeft } from 'react-icons/fi';
 
 export default function AddContactPage() {
   const [search, setSearch] = useState('');
@@ -24,7 +25,7 @@ export default function AddContactPage() {
   return (
     <div className="min-h-screen bg-orange-50">
         <div className="flex items-center justify-between px-4 py-3 shadow bg-orange-500 text-white">
-        <button onClick={() => router.back()} className="text-xl">←</button>
+        <button onClick={() => router.back()} className="text-xl"><FiArrowLeft size={22} /></button>
         <h1 className="text-lg font-semibold">Add Contact</h1>
         <div></div>
       </div>

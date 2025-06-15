@@ -30,7 +30,7 @@ export default function ChatPage() {
     <div className="min-h-screen bg-orange-50 flex flex-col relative">
       {/* ✅ Success Toast */}
       {showToast && (
-        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white py-2 px-6 rounded shadow-md z-50">
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white py-2 px-6 rounded shadow-md z-50">
           ✅ Successfully logged in
         </div>
       )}
