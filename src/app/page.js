@@ -11,7 +11,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-between bg-white py-12 px-4">
       <div className="w-full flex justify-start">
-        <div className="w-[20%] rounded-full shadow-sm animate-pulse mx-auto">
+        <div className="w-[100%] md:w-[20%] rounded-full shadow-sm animate-pulse mx-auto">
           <img src='/chat.png' className='w-full'/>
         </div>
       </div>
