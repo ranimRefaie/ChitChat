@@ -25,7 +25,7 @@ export default function LoginPage() {
       }
 
       localStorage.setItem('user', JSON.stringify(data));
-      router.push('/chat');
+      router.push('/chats');
     } catch (err) {
       setError('Something went wrong');
     }
