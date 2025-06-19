@@ -8,6 +8,7 @@ export default function TopBar() {
   const [darkMode, setDarkMode] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [profilePic, setProfilePic] = useState('/user.png'); 
   const searchRef = useRef(null);
   const dropdownRef = useRef(null);
   const router = useRouter();
@@ -25,6 +26,20 @@ export default function TopBar() {
     localStorage.removeItem('user');
     router.push('/auth/login');
   };
+
+useEffect(() => {
+  const userData = localStorage.getItem('user');
+  if (userData) {
+    try {
+      const user = JSON.parse(userData);
+      if (user.profilePic && user.profilePic.url) {
+        setProfilePic(`https://quicklychat.onrender.com${user.profilePic.url}`);
+      }
+    } catch (err) {
+      console.error('❌ Error parsing user data:', err);
+    }
+  }
+}, []);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -58,43 +73,29 @@ export default function TopBar() {
       {/* Right side */}
       <div className="flex items-center space-x-4">
         {/* Search */}
-        <div
-          ref={searchRef}
-          className="relative flex items-center gap-3"
-        >
-          {/* input فقط يظهر إذا showSearch=true */}
+        <div ref={searchRef} className="relative flex items-center gap-3">
           {showSearch && (
             <div className="flex items-center gap-2 sm:gap-3">
-              {/* زر رجوع يظهر فقط على الشاشات الصغيرة */}
-              <button
-                onClick={() => setShowSearch(false)}
-                className="text-white sm:hidden"
-              >
+              <button onClick={() => setShowSearch(false)} className="text-white sm:hidden">
                 <FaArrowLeft />
               </button>
-
               <input
                 autoFocus
                 type="text"
                 placeholder="Search..."
                 className="p-1 rounded-md border border-white/30 shadow-sm w-[80vw] sm:w-56 bg-white text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-400 transition"
-                onClick={(e) => e.stopPropagation()} 
+                onClick={(e) => e.stopPropagation()}
               />
             </div>
           )}
-
-          {/* زر بحث يظهر فقط إذا ما في input ظاهر */}
           {!showSearch && (
-            <button
-              onClick={() => setShowSearch(true)}
-              className="text-gray-100 hover:text-white cursor-pointer"
-            >
+            <button onClick={() => setShowSearch(true)} className="text-gray-100 hover:text-white cursor-pointer">
               <FaSearch />
             </button>
           )}
         </div>
 
-        {/* الوضع الليلي - يختفي وقت البحث بالشاشات الصغيرة */}
+
         <button
           onClick={toggleDarkMode}
           className={`text-gray-100 hover:text-white cursor-pointer ${
@@ -104,30 +105,17 @@ export default function TopBar() {
           {darkMode ? <FaSun /> : <FaMoon />}
         </button>
 
-        {/* صورة البروفايل والدروبداون - يختفون وقت البحث بالشاشات الصغيرة */}
-        <div
-          ref={dropdownRef}
-          className={`relative ${showSearch ? 'hidden sm:block' : ''}`}
-        >
-          <button
-            onClick={() => setShowDropdown(!showDropdown)}
-            className="flex items-center space-x-1 cursor-pointer"
-          >
-            <img src="/girl.jpg" className="w-8 h-8 rounded-full border" />
+        <div ref={dropdownRef} className={`relative ${showSearch ? 'hidden sm:block' : ''}`}>
+          <button onClick={() => setShowDropdown(!showDropdown)} className="flex items-center space-x-1 cursor-pointer">
+            <img src={profilePic} className="w-8 h-8 rounded-full object-cover" alt="avatar" />
             <FaChevronDown className="text-gray-100" />
           </button>
           {showDropdown && (
             <div className="absolute right-0 top-full mt-2 bg-white dark:bg-gray-700 shadow-md rounded w-40 text-sm z-10">
-              <Link
-                href="/settings"
-                className="block px-4 py-2 hover:dark:bg-gray-600"
-              >
+              <Link href="/settings" className="block px-4 py-2 hover:dark:bg-gray-600">
                 Edit Profile
               </Link>
-              <button
-                onClick={handleLogout}
-                className="w-full text-left px-4 py-2 hover:dark:bg-gray-600"
-              >
+              <button onClick={handleLogout} className="w-full text-left px-4 py-2 hover:dark:bg-gray-600">
                 Logout
               </button>
             </div>
