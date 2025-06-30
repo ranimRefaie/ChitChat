@@ -1,11 +1,12 @@
 'use client';
 import { useRouter } from 'next/navigation';
+import { FaArrowRight } from "react-icons/fa";
 
 export default function HomePage() {
   const router = useRouter();
 
   const handleStart = () => {
-    router.push('/auth/login');
+    router.replace('/auth/login');
   };
 
   return (
@@ -22,9 +23,10 @@ export default function HomePage() {
       
       <button
         onClick={handleStart}
-        className="mb-10 bg-orange-500 text-white px-6 py-3 rounded-full shadow hover:bg-orange-600 transition cursor-pointer"
+        className="flex items-center gap-2 mb-10 bg-orange-400 text-white px-6 py-3 rounded-full shadow hover:bg-orange-500 transition cursor-pointer"
       >
         LogIn
+        <FaArrowRight />
       </button>
     </div>
   );

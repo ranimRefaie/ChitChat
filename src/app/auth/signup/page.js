@@ -2,6 +2,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
+import { getSocket } from '@/lib/socket';
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -10,35 +12,44 @@ export default function SignUpPage() {
   const [verifyPassword, setVerifyPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleSignup = async (e) => {
-    e.preventDefault();
-    setError('');
+const handleSignup = async (e) => {
+  e.preventDefault();
+  setError('');
 
-    if (password !== verifyPassword) {
-      setError("Passwords don't match");
+  if (password !== verifyPassword) {
+    setError("Passwords don't match");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/auth/signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: username.trim().toLowerCase(), password }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(data.message || 'Signup failed');
       return;
     }
 
-    try {
-      const res = await fetch('https://quicklychat.onrender.com/api/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-      });
+    localStorage.setItem('user', JSON.stringify(data));
 
-      const data = await res.json();
+    getSocket(data.name || data.username || username.trim().toLowerCase());
 
-      if (!res.ok) {
-        setError(data.message || 'Signup failed');
-        return;
-      }
+    toast.success('🎉 Account created! Let’s complete your profile');
+    router.replace('/complete-profile');
+  } catch (err) {
+    setError('Something went wrong');
+    toast.error('Something went wrong');
+  }
+};
 
-      localStorage.setItem('user', JSON.stringify(data));
-      router.push('/chat');
-    } catch (err) {
-      setError('Something went wrong');
-    }
-  };
+
+
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-orange-50 px-4">
@@ -94,3 +105,6 @@ export default function SignUpPage() {
     </div>
   );
 }
+
+
+

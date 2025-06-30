@@ -1,7 +1,8 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -9,14 +10,22 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user) {
+
+      router.replace('/chats');
+    }
+  }, []);
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
     try {
-      const res = await fetch('https://quicklychat.onrender.com/api/auth/login', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username: username.trim().toLowerCase(), password }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -24,11 +33,19 @@ export default function LoginPage() {
         return;
       }
 
-      localStorage.setItem('user', JSON.stringify(data));
-      router.push('/chats');
+      localStorage.setItem('user', JSON.stringify({
+        name: data.username,
+        token: data.token,
+      }));
+      router.replace('/chats');
+      toast.success('Successfully logged in!')
     } catch (err) {
-      setError('Something went wrong');
+      console.error('Login error:', err);
+      toast.error('Something went wrong');
+
     }
+
+
   };
 
   return (
