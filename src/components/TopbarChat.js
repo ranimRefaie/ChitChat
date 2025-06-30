@@ -6,6 +6,8 @@ import { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { AiOutlineClear } from "react-icons/ai";
 import { MdDeleteOutline } from "react-icons/md";
+import ContactInfoPopup from './ContactInfoPopup';
+import { GrFormView } from "react-icons/gr";
 
 function formatLastSeen(dateString, now = new Date()) {
   if (!dateString) return 'last seen: unknown';
@@ -40,8 +42,9 @@ export default function TopBar({
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef();
   const searchRef = useRef();
-const [showClearModal, setShowClearModal] = useState(false);
-const [showRemoveModal, setShowRemoveModal] = useState(false);
+  const [showClearModal, setShowClearModal] = useState(false);
+  const [showRemoveModal, setShowRemoveModal] = useState(false);
+  const [showContactInfo, setShowContactInfo] = useState(false);
   useEffect(() => {
     if (!isOnline) {
       const interval = setInterval(() => setNow(new Date()), 60000);
@@ -98,7 +101,7 @@ const [showRemoveModal, setShowRemoveModal] = useState(false);
 
         if (result.success) {
           toast.success("Chat cleared!");
-          onSearch(''); 
+          onSearch('');
         } else {
           toast.error("Failed to clear chat.");
         }
@@ -110,47 +113,47 @@ const [showRemoveModal, setShowRemoveModal] = useState(false);
   };
 
   const handleRemoveContact = async () => {
-  try {
-    const user = JSON.parse(localStorage.getItem('user'));
-    const token = user.token;
+    try {
+      const user = JSON.parse(localStorage.getItem('user'));
+      const token = user.token;
 
-    const checkRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/data/check`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({ sender: user.name, receiver: username })
-    });
+      const checkRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/data/check`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ sender: user.name, receiver: username })
+      });
 
-    const chat = await checkRes.json();
+      const chat = await checkRes.json();
 
-    if (!chat?._id) {
-      toast.error("Chat not found");
-      return;
-    }
-
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/data/contact/${chat._id}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${token}`
+      if (!chat?._id) {
+        toast.error("Chat not found");
+        return;
       }
-    });
 
-    const result = await res.json();
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/data/contact/${chat._id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
 
-    if (result.success) {
-      toast.success("Contact removed");
-      router.push('/chats');
-      if (typeof onContactRemoved === 'function') onContactRemoved(username); // <- call prop
-    } else {
-      toast.error("Failed to remove contact");
+      const result = await res.json();
+
+      if (result.success) {
+        toast.success("Contact removed");
+        router.push('/chats');
+        if (typeof onContactRemoved === 'function') onContactRemoved(username); // <- call prop
+      } else {
+        toast.error("Failed to remove contact");
+      }
+    } catch (err) {
+      console.error("Remove contact error:", err);
+      toast.error("Something went wrong");
     }
-  } catch (err) {
-    console.error("Remove contact error:", err);
-    toast.error("Something went wrong");
-  }
-};
+  };
 
 
 
@@ -246,76 +249,85 @@ const [showRemoveModal, setShowRemoveModal] = useState(false);
                 ref={dropdownRef}
                 className="absolute top-12 right-0 z-50 bg-white border shadow-md rounded-lg p-2 w-44"
               >
-                <button
-                 onClick={() => setShowClearModal(true)}
+                <button onClick={() => setShowContactInfo(true)}
                   className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-gray-400 hover:bg-yellow-100 rounded-md"
                 >
-                  <AiOutlineClear size={20}/>
+                  <GrFormView size={20} />   View Info
+                </button>
+                <button
+                  onClick={() => setShowClearModal(true)}
+                  className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-gray-400 hover:bg-yellow-100 rounded-md"
+                >
+                  <AiOutlineClear size={20} />
                   Clear Chat
                 </button>
                 <button
-                 onClick={() => setShowRemoveModal(true)}
+                  onClick={() => setShowRemoveModal(true)}
                   className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-100 rounded-md"
                 >
                   <MdDeleteOutline size={20} />
                   Remove Contact
                 </button>
+                
               </div>
             )}
           </>
         )}
       </div>
       {/* Clear Chat Modal */}
-{showClearModal && (
-  <div className="fixed inset-0 z-50 bg-opacity-50 flex items-center justify-center">
-    <div className="bg-white rounded-lg p-6 shadow-lg w-80 text-center space-y-4">
-      <p className="text-lg font-medium text-gray-800">Are you sure you want to clear this chat?</p>
-      <div className="flex justify-center gap-4">
-        <button
-          onClick={() => {
-            handleClearChat();
-            setShowClearModal(false);
-          }}
-          className="bg-orange-400 hover:bg-orange-500 text-white px-4 py-2 rounded cursor-pointer"
-        >
-          Yes
-        </button>
-        <button
-          onClick={() => setShowClearModal(false)}
-          className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded cursor-pointer"
-        >
-          Cancel
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+      {showClearModal && (
+        <div className="fixed inset-0 z-50 bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 shadow-lg w-80 text-center space-y-4">
+            <p className="text-lg font-medium text-gray-800">Are you sure you want to clear this chat?</p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => {
+                  handleClearChat();
+                  setShowClearModal(false);
+                }}
+                className="bg-orange-400 hover:bg-orange-500 text-white px-4 py-2 rounded cursor-pointer"
+              >
+                Yes
+              </button>
+              <button
+                onClick={() => setShowClearModal(false)}
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
-{/* Remove Contact Modal */}
-{showRemoveModal && (
-  <div className="fixed inset-0 z-50 bg-opacity-50 flex items-center justify-center">
-    <div className="bg-white rounded-lg p-6 shadow-lg w-80 text-center space-y-4">
-      <p className="text-lg font-medium text-gray-800">Remove this contact permanently?</p>
-      <div className="flex justify-center gap-4">
-        <button
-          onClick={() => {
-            handleRemoveContact();
-            setShowRemoveModal(false);
-          }}
-          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded cursor-pointer"
-        >
-          Remove
-        </button>
-        <button
-          onClick={() => setShowRemoveModal(false)}
-          className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded cursor-pointer"
-        >
-          Cancel
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+      {/* Remove Contact Modal */}
+      {showRemoveModal && (
+        <div className="fixed inset-0 z-50 bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 shadow-lg w-80 text-center space-y-4">
+            <p className="text-lg font-medium text-gray-800">Remove this contact permanently?</p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => {
+                  handleRemoveContact();
+                  setShowRemoveModal(false);
+                }}
+                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded cursor-pointer"
+              >
+                Remove
+              </button>
+              <button
+                onClick={() => setShowRemoveModal(false)}
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showContactInfo && (
+        <ContactInfoPopup username={username} onClose={() => setShowContactInfo(false)} />
+      )}
     </div>
   );
 }
