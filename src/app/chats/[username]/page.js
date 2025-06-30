@@ -66,9 +66,9 @@ export default function ChatViewPage() {
   setMessages((prev) => [...prev, newMsg]);
   setShouldScrollToBottom(true);
   
-    if (msg.senderName !== user.name) {
+    /*if (msg.senderName !== user.name) {
     socketRef.current?.emit('message_read', { messageId: msg._id });
-  }
+  }*/
 
       });
 
@@ -475,6 +475,19 @@ useEffect(() => {
     firstMatchRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 }, [messages]);
+
+// ✅ Mark unread messages as read only when user is viewing the chat
+useEffect(() => {
+  const user = JSON.parse(localStorage.getItem('user'));
+  if (!user) return;
+
+  messages.forEach(msg => {
+    if (!msg.readAt && !msg.fromMe) {
+      socketRef.current?.emit('message_read', { messageId: msg.id });
+    }
+  });
+}, [messages]);
+
 
 const handleDelete = async (messageId) => {
 

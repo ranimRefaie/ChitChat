@@ -101,6 +101,35 @@ export default function MessageList({ messages, bottomRef, handleDelete, onForwa
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  function formatReadAt(dateString) {
+  const date = new Date(dateString);
+  const now = new Date();
+
+  const isToday = date.toDateString() === now.toDateString();
+
+  const yesterday = new Date();
+  yesterday.setDate(now.getDate() - 1);
+  const isYesterday = date.toDateString() === yesterday.toDateString();
+
+  const time = date.toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  });
+
+  if (isToday) {
+    return `Read at ${time}`;
+  } else if (isYesterday) {
+    return `Read yesterday at ${time}`;
+  } else {
+    return `Read on ${date.toLocaleDateString([], {
+      month: 'short',
+      day: 'numeric',
+    })} at ${time}`;
+  }
+}
+
+
   return (
     <>
       {messages.map((msg) => {
@@ -216,11 +245,7 @@ export default function MessageList({ messages, bottomRef, handleDelete, onForwa
             {/* Read At */}
             {showReadAt && (
               <div className="text-[10px] text-gray-600 mt-1 text-right pr-1">
-                ✅ Read at{' '}
-                {new Date(msg.readAt).toLocaleTimeString([], {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })}
+                ✅ {formatReadAt(msg.readAt)}
               </div>
             )}
           </div>
