@@ -211,24 +211,28 @@ export default function TopBar({
               placeholder="Search messages..."
               className="p-1 rounded-md border border-white/30 shadow-sm w-[80vw] sm:w-56 bg-white text-gray-800 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-400 transition"
             />
-            {searchQuery && (
+
+            
+            <button
+              onClick={onSearch}
+              className="bg-white text-gray-300 p-1 cursor-pointer hover:bg-orange-50 rounded font-medium text-sm px-2"
+            >
+              <FaSearch size={18} />
+            </button>
+
+              {searchQuery && (
               <button
                 onClick={() => {
                   setSearchQuery('');
                   setShowSearch(false);
                   onSearch('');
                 }}
-                className="absolute right-2 text-gray-400 hover:text-red-500 text-xs"
+                className="absolute right-12 cursor-pointer text-gray-400 hover:text-red-500 text-xs"
               >
                 <FiX size={18} />
               </button>
             )}
-            <button
-              onClick={onSearch}
-              className="bg-white text-gray-300 p-1 cursor-pointer hover:bg-orange-50 rounded font-medium text-sm px-2"
-            >
-              Search
-            </button>
+
           </div>
         )}
       </div>
